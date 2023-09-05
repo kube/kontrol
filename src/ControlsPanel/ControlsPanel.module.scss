@@ -1,0 +1,66 @@
+.Container {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  right: 20px;
+  bottom: 20px;
+  pointer-events: none;
+  z-index: 99999999999;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.Panel {
+  pointer-events: all;
+  display: block;
+  position: fixed;
+  z-index: 1000000;
+  font-family: Inter, Arial, Helvetica, sans-serif;
+  background-color: rgba(0, 0, 0, 0.85);
+  color: white;
+  border-radius: 7px;
+  padding: 0;
+  width: 310px;
+  user-select: none;
+  border: 1px solid #444;
+  backdrop-filter: blur(10px);
+
+  // When prefers Light Theme
+  @media (prefers-color-scheme: light) {
+    background-color: rgba(255, 255, 255, 0.85);
+    color: black;
+    border: 1px solid #ccc;
+  }
+}
+
+.PanelTitle {
+  font-size: 14px;
+
+  font-weight: 500;
+  text-transform: uppercase;
+  padding: 10px;
+  user-select: none;
+  opacity: 0.54;
+
+  @media (prefers-color-scheme: light) {
+    opacity: 0.36;
+  }
+}
+
+.PanelTitleButtons {
+  float: right;
+  button {
+    margin: 0 2px;
+    padding: 5px 7px;
+    line-height: 8px;
+    border-radius: 20px;
+    border: none;
+  }
+}
+
+.NoControls {
+  text-align: center;
+  padding: 10px;
+  margin-bottom: 16px;
+  font-size: 12px;
+  opacity: 0.54;
+}
