@@ -1,24 +1,24 @@
 import React, { useState } from "react";
-import { useDebugCommand, useDebugControl } from "./Kontrol/hooks";
+import * as Ktrl from "./Kontrol/hooks";
 
 export const App: React.FC = () => {
   const [count, setCount] = useState(0);
 
-  useDebugCommand({
+  Ktrl.useCommand({
     group: "Count",
     label: "Increment",
     callback: () => setCount(count + 1),
     keyboardShortcut: "Ctrl+Shift++",
   });
 
-  useDebugCommand({
+  Ktrl.useCommand({
     group: "Count",
     label: "Decrement",
     callback: () => setCount(count - 1),
     keyboardShortcut: "Ctrl+Shift+_",
   });
 
-  const fontFamily = useDebugControl({
+  const fontFamily = Ktrl.useControl({
     group: ["Global"],
     label: "Font family",
     type: "Select",
@@ -32,14 +32,14 @@ export const App: React.FC = () => {
     },
   });
 
-  const blueBackground = useDebugControl({
+  const blueBackground = Ktrl.useControl({
     group: ["Global"],
     label: "Blue Background",
     type: "Toggle",
     default: false,
   });
 
-  const initialValue = useDebugControl({
+  const initialValue = Ktrl.useControl({
     group: ["Count"],
     label: "Initial value",
     type: "Number",
@@ -48,14 +48,14 @@ export const App: React.FC = () => {
     max: 1000,
   });
 
-  const color = useDebugControl({
+  const color = Ktrl.useControl({
     group: ["Count"],
     label: "Color",
     type: "Color",
     default: "#FFFFFF",
   });
 
-  const fontSize = useDebugControl({
+  const fontSize = Ktrl.useControl({
     group: ["Count"],
     label: "Font size",
     type: "Number",
@@ -64,7 +64,7 @@ export const App: React.FC = () => {
     max: 100,
   });
 
-  const fontWeight = useDebugControl({
+  const fontWeight = Ktrl.useControl({
     group: ["Count"],
     label: "Font weight",
     type: "Number",
@@ -73,7 +73,7 @@ export const App: React.FC = () => {
     max: 900,
   });
 
-  const textShadowOffsetX = useDebugControl({
+  const textShadowOffsetX = Ktrl.useControl({
     group: ["Count", "Text Shadow"],
     label: "Offset X",
     type: "Number",
@@ -82,7 +82,7 @@ export const App: React.FC = () => {
     max: 100,
   });
 
-  const textShadowOffsetY = useDebugControl({
+  const textShadowOffsetY = Ktrl.useControl({
     group: ["Count", "Text Shadow"],
     label: "Offset Y",
     type: "Number",
@@ -91,7 +91,7 @@ export const App: React.FC = () => {
     max: 100,
   });
 
-  const textShadowBlur = useDebugControl({
+  const textShadowBlur = Ktrl.useControl({
     group: ["Count", "Text Shadow"],
     label: "Blur",
     type: "Number",
@@ -100,7 +100,7 @@ export const App: React.FC = () => {
     max: 100,
   });
 
-  const textShadowColor = useDebugControl({
+  const textShadowColor = Ktrl.useControl({
     group: ["Count", "Text Shadow"],
     label: "Color",
     type: "Color",

@@ -7,7 +7,7 @@ import {
   useState,
 } from "react";
 
-import { useMotionValue, type MotionValue, motion } from "framer-motion";
+import { useMotionValue, type MotionValue } from "framer-motion";
 
 import {
   type ControlType,
@@ -58,7 +58,7 @@ function getControlId(control: OptionsFromType<ControlType>) {
   return `__${control.type}__${groupId}__${control.label}`;
 }
 
-export function useDebugControlMotion<
+export function useControlMotion<
   T extends ControlType,
   O extends OptionsFromType<T>
 >(input: O): MotionValue<ReturnTypeFromOptions<O>> {
@@ -89,10 +89,9 @@ export function useDebugControlMotion<
   return motionValue;
 }
 
-export function useDebugControl<
-  T extends ControlType,
-  O extends OptionsFromType<T>
->(input: O): ReturnTypeFromOptions<O> {
+export function useControl<T extends ControlType, O extends OptionsFromType<T>>(
+  input: O
+): ReturnTypeFromOptions<O> {
   const { registerControl } = useContext(KontrolContext);
 
   const [value, setValue] = useState<ControlValueType>();
@@ -117,7 +116,7 @@ export function useDebugControl<
 }
 
 // TODO: Type Signature is just copy-paste from upper function, but we can do specific inference for each key/value
-export function useDebugControls<
+export function useControls<
   T extends ControlType,
   O extends OptionsFromType<T>
 >(inputs: Record<string, O>): Record<string, ReturnTypeFromOptions<O>> {
@@ -160,19 +159,10 @@ export function useDebugControls<
   );
 }
 
-export function useCommand(
-  group: string,
-  label: string,
-  callback: () => void,
-  keyboardShortcut?: string
-) {
-  return useDebugCommand({ group, label, callback, keyboardShortcut });
-}
-
 /**
  * Register a Single Debug Command.
  */
-export function useDebugCommand({
+export function useCommand({
   id,
   group,
   label,

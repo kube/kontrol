@@ -1,2 +1,2 @@
 export { KontrolProvider } from "./KontrolProvider";
-export { useDebugCommand } from "./hooks";
+export { useCommand as useDebugCommand } from "./hooks";

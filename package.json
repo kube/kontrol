@@ -19,11 +19,13 @@
   "types": "./dist/index.d.ts",
   "dependencies": {
     "@mui/base": "^5.0.0-beta.13",
+    "@vanilla-extract/css": "^1.13.0",
     "framer-motion": "^10.16.2",
     "material-icons": "^1.13.10",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^4.10.1",
+    "rxjs": "^7.8.1",
     "sass": "^1.66.1",
     "use-debounce": "^9.0.4"
   },

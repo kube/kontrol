@@ -13,6 +13,7 @@ export const CommandPaletteContainer = style({
 });
 
 export const CommandPalette = style({
+  userSelect: "none",
   margin: "22px auto",
   minWidth: "400px",
   maxWidth: "700px",
@@ -38,13 +39,6 @@ export const Input = style({
   },
 });
 
-export const CommandShortcut = style({
-  flexGrow: 0,
-  marginLeft: "6px",
-  color: "white",
-  fontWeight: 300,
-});
-
 export const Selected = style({});
 
 export const CommandsList = style({
@@ -57,8 +51,12 @@ export const CommandsList = style({
 });
 
 export const CommandsListItem = style({
+  fontFamily: "Inter",
   display: "flex",
-  padding: "9px",
+  fontSize: "14px",
+  height: "29px",
+  lineHeight: "29px",
+  padding: "4px 9px",
   borderBottom: "1px solid #00000022",
   overflow: "hidden",
   whiteSpace: "nowrap",
@@ -84,22 +82,6 @@ globalStyle(
     backgroundColor: "rgb(11, 59, 122)",
   }
 );
-
-globalStyle(`${CommandsListItem}${Selected} ${CommandShortcut} kbd`, {
-  backgroundColor: "#ffffff2c",
-});
-
-globalStyle(`${CommandShortcut} kbd`, {
-  display: "inline-block",
-  padding: "2px 4px",
-  borderRadius: "3px",
-  fontSize: "0.8em",
-  fontWeight: 400,
-  fontFamily: "inherit",
-  width: "22px",
-  textAlign: "center",
-  margin: "0 2px",
-});
 
 export const GroupName = style({
   flexGrow: 0,

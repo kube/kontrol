@@ -4,9 +4,10 @@ import { AnimatePresence, motion } from "framer-motion";
 import cslx from "clsx";
 
 import type { Command, KontrolPluginAPI } from "../Kontrol/KontrolPluginAPI";
-import { useDebugCommand } from "../Kontrol/hooks";
+import { useCommand } from "../Kontrol/hooks";
 
 import * as styles from "./CommandPalette.css";
+import { CommandShortcut } from "./CommandShortcut";
 
 function toSlug(str: string) {
   return str.replace(/\s/g, "").toLowerCase();
@@ -129,10 +130,7 @@ export const CommandPaletteUI: React.FC<{
                 {command.label}
               </motion.div>
               {command.keyboardShortcut && (
-                <motion.div className={styles.CommandShortcut}>
-                  <kbd>⌘</kbd>+<kbd>K</kbd>+
-                  <kbd>{command.keyboardShortcut.toUpperCase()}</kbd>
-                </motion.div>
+                <CommandShortcut keybinding={command.keyboardShortcut} />
               )}
             </li>
           ))}
@@ -146,7 +144,7 @@ export const CommandPaletteUI: React.FC<{
 export const CommandPalette: React.FC<KontrolPluginAPI> = ({ commands }) => {
   const [visible, setVisible] = useState(false);
 
-  useDebugCommand({
+  useCommand({
     group: "Command Palette",
     label: "Toggle",
     callback: () => setVisible((x) => !x),

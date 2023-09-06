@@ -10,7 +10,7 @@ import {
 
 import { ControlsGroup } from "./ControlsGroup";
 import * as styles from "./ControlsPanel.css";
-import { useDebugCommand } from "../Kontrol/hooks";
+import { useCommand } from "../Kontrol/hooks";
 
 import { MdClose, MdBackspace } from "react-icons/md";
 
@@ -27,7 +27,7 @@ export const ControlsPanel: KontrolPlugin = ({
   const dragControls = useDragControls();
   const wrapperRef = React.useRef<HTMLDivElement>(null);
 
-  useDebugCommand({
+  useCommand({
     group: "Debug",
     id: "debugcontrols_toggle",
     label: "Toggle Debug Controls",
