@@ -1,4 +1,4 @@
-import type { ControlType, OptionsFromType } from "./context";
+import type { ControlType, OptionsFromType } from "./inference";
 
 export function getControlDefaultValue(control: OptionsFromType<ControlType>) {
   console.log("getControlDefaultValue", control);

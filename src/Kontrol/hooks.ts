@@ -9,14 +9,14 @@ import {
 
 import { useMotionValue, type MotionValue } from "framer-motion";
 
-import {
-  type ControlType,
-  type ControlValueType,
-  KontrolContext,
-  type OptionsFromType,
-  type ReturnTypeFromOptions,
-} from "./context";
-import { getControlDefaultValue } from "../Kontrol/getControlDefault";
+import { KontrolContext } from "./context";
+import type {
+  ControlType,
+  ControlValueType,
+  OptionsFromType,
+  ReturnTypeFromOptions,
+} from "./inference";
+import { getControlDefaultValue } from "./getControlDefault";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function areObjectsShallowEqual(a: any, b: any) {
