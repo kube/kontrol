@@ -7,8 +7,6 @@ import {
   useState,
 } from "react";
 
-import { useMotionValue, type MotionValue } from "framer-motion";
-
 import { KontrolContext } from "./context";
 import type {
   ControlType,
@@ -58,37 +56,6 @@ function getControlId(control: OptionsFromType<ControlType>) {
   return `__${control.type}__${groupId}__${control.label}`;
 }
 
-export function useControlMotion<
-  T extends ControlType,
-  O extends OptionsFromType<T>
->(input: O): MotionValue<ReturnTypeFromOptions<O>> {
-  const { registerControl } = useContext(KontrolContext);
-
-  const defaultValue = useMemo(() => getControlDefaultValue(input), []);
-
-  const motionValue = useMotionValue(defaultValue);
-
-  const controlId = useMemo(() => getControlId(input), [input]);
-
-  const memoizedControl = useObjectShallowMemo({
-    ...input,
-    id: controlId,
-    // This options field is only on Select controls
-    options: useObjectShallowMemo("options" in input ? input.options : {}),
-  });
-
-  useEffect(() => {
-    // FIXME find a better way to handle types for memoizedControl
-    const { unregister } = registerControl(memoizedControl, (value) =>
-      motionValue.set(value)
-    );
-    return () => unregister();
-  }, [motionValue, memoizedControl, registerControl]);
-
-  // @ts-expect-error Need to do better TS here (and upstream)
-  return motionValue;
-}
-
 export function useControl<T extends ControlType, O extends OptionsFromType<T>>(
   input: O
 ): ReturnTypeFromOptions<O> {
@@ -107,56 +74,14 @@ export function useControl<T extends ControlType, O extends OptionsFromType<T>>(
 
   useEffect(() => {
     // FIXME find a better way to handle types for memoizedControl
-    const { unregister } = registerControl(memoizedControl, setValue);
-    return () => unregister();
+    const control = registerControl(memoizedControl);
+    const sub = control.subscribe(setValue);
+
+    return () => sub.unsubscribe();
   }, [memoizedControl, registerControl]);
 
   // @ts-expect-error Need to do better TS here (and upstream)
   return value ?? getControlDefaultValue(input);
-}
-
-// TODO: Type Signature is just copy-paste from upper function, but we can do specific inference for each key/value
-export function useControls<
-  T extends ControlType,
-  O extends OptionsFromType<T>
->(inputs: Record<string, O>): Record<string, ReturnTypeFromOptions<O>> {
-  const { registerControl } = useContext(KontrolContext);
-
-  const [values, setValues] = useState<Record<string, ControlValueType>>();
-
-  const memoizedControls = useMemo(
-    () =>
-      Object.fromEntries(
-        Object.entries(inputs).map(([key, input]) => [
-          key,
-          { ...input, id: getControlId(input) },
-        ])
-      ),
-    [inputs]
-  );
-
-  useEffect(() => {
-    const unregisters = Object.entries(memoizedControls).map(
-      ([key, control]) => {
-        const { unregister } = registerControl(control, (value) =>
-          setValues((current) => ({ ...current, [key]: value }))
-        );
-        return unregister;
-      }
-    );
-    return () => unregisters.forEach((unregister) => unregister());
-  }, [memoizedControls, registerControl]);
-
-  // @ts-expect-error Need to do better TS here (and upstream)
-  return (
-    values ??
-    Object.fromEntries(
-      Object.entries(inputs).map(([key, value]) => [
-        key,
-        getControlDefaultValue(value),
-      ])
-    )
-  );
 }
 
 /**

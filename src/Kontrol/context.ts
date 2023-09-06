@@ -1,11 +1,8 @@
 import { createContext } from "react";
+import { Observable, of } from "rxjs";
 
 import { getControlDefaultValue } from "./getControlDefault";
-import { Control, ControlType, ReturnTypeFromOptions } from "./inference";
-
-///
-/// COMMANDS
-///
+import type { Control, ControlType, ReturnTypeFromOptions } from "./inference";
 
 type CommandRegisterInput = {
   id?: string;
@@ -15,10 +12,6 @@ type CommandRegisterInput = {
   keyboardShortcut?: string;
 };
 
-///
-/// CONTEXT
-///
-
 type UnregisterFn = () => void;
 
 const fakeUnregister = () => {};
@@ -27,20 +20,13 @@ export type KontrolContextType = {
   registerCommand: (command: CommandRegisterInput) => UnregisterFn;
 
   registerControl: <T extends ControlType, C extends Control<T>>(
-    options: C,
-    onChange: (value: ReturnTypeFromOptions<C>) => void
-  ) => {
-    value: ReturnTypeFromOptions<C>;
-    unregister: UnregisterFn;
-  };
+    options: C
+  ) => Observable<ReturnTypeFromOptions<C>>;
 };
 
 export const KontrolContext = createContext<KontrolContextType>({
   registerCommand: () => fakeUnregister,
 
-  registerControl: (control) => ({
-    // If no Context Provider, return default value
-    value: getControlDefaultValue(control),
-    unregister: () => {},
-  }),
+  // If no Context Provider, return default value
+  registerControl: (control) => of(getControlDefaultValue(control)),
 });

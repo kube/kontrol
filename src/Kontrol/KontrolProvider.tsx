@@ -1,110 +1,18 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useMemo, useState } from "react";
+import { BehaviorSubject } from "rxjs";
 
-import {
-  type ControlValueType,
-  KontrolContext,
-  type KontrolContextType,
-  type Control,
-} from "./context";
+import { KontrolContext, type KontrolContextType } from "./context";
+import type { Control, ControlValueType } from "./inference";
 import type {
   Command,
   KontrolPlugin,
   KontrolPluginAPI,
 } from "./KontrolPluginAPI";
 import { useKeybindings } from "./keybindings";
-import { useDebouncedCallback } from "use-debounce";
 import { getControlDefaultValue } from "./getControlDefault";
+import { useObjectShallowMemo, useProxyCallback } from "./utils";
 
-type ControlWatcher = (value: ControlValueType) => void;
-
-type ValueMap = Record<string, ControlValueType>;
-
-const STORAGE_KEY = "__DebugControls__values";
-
-function saveControlValues(values: ValueMap): void {
-  sessionStorage.setItem(STORAGE_KEY, JSON.stringify(values));
-}
-
-function loadControlValues(): ValueMap {
-  const values = sessionStorage.getItem(STORAGE_KEY);
-  return values ? JSON.parse(values) : {};
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function areObjectsShallowEqual(a: any, b: any) {
-  if (a === b) {
-    return true;
-  }
-
-  if (
-    typeof a !== "object" ||
-    a === null ||
-    typeof b !== "object" ||
-    b === null
-  ) {
-    return false;
-  }
-
-  const currentKeys = Object.keys(a);
-  const nextKeys = Object.keys(b);
-
-  if (currentKeys.length !== nextKeys.length) {
-    return false;
-  }
-
-  return currentKeys.every((key) => a[key] === b[key]);
-}
-
-function useObjectShallowMemo<T extends Record<string, unknown>>(nextValue: T) {
-  const value = useRef<T>(nextValue);
-
-  if (!areObjectsShallowEqual(value.current, nextValue)) {
-    value.current = nextValue;
-  }
-  return value.current;
-}
-
-/**
- * Works as `useEffect`, but with debounce delay.
- */
-function useDebouncedEffect(
-  callback: () => void | (() => void),
-  wait: number,
-  deps: unknown[]
-) {
-  const destructorRef = useRef<() => void>();
-
-  const wrappedCallback = useCallback(() => {
-    // Call previous destructor
-    destructorRef.current?.();
-
-    // Save next destructor, or erase previous one
-    const destructorOption = callback();
-    destructorRef.current =
-      typeof destructorOption === "function" ? destructorOption : undefined;
-  }, [callback]);
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(useDebouncedCallback(wrappedCallback, wait), deps);
-}
-
-/**
- * Helper to always return same function identity.
- * Useful for setters.
- */
-function useProxyCallback<Fn extends (...args: never[]) => unknown>(fn: Fn): Fn;
-
-function useProxyCallback(fn: Function) {
-  const callbackRef = useRef<typeof fn>(fn);
-  callbackRef.current = fn;
-  return useCallback((...args) => callbackRef.current(...args), []);
-}
+type SubjectMap = Record<string, BehaviorSubject<ControlValueType>>;
 
 type KontrolProviderProps = {
   children: React.ReactNode;
@@ -116,8 +24,18 @@ export const KontrolProvider: React.FC<KontrolProviderProps> = ({
   plugins,
 }) => {
   const [commands, setCommands] = useState<Command[]>([]);
+  const [controls, setControls] = useState<Record<string, Control>>({});
+  const [subjects, setSubjects] = useState<SubjectMap>({});
+
+  //
+  // KEYBINDINGS
+  //
 
   useKeybindings(commands);
+
+  //
+  // COMMANDS
+  //
 
   const registerCommand = useCallback<KontrolContextType["registerCommand"]>(
     (commandInput) => {
@@ -140,97 +58,59 @@ export const KontrolProvider: React.FC<KontrolProviderProps> = ({
     []
   );
 
-  const [controls, setControls] = useState<Record<string, Control>>({});
-  const [watchers, setWatchers] = useState<
-    Record<string, ControlWatcher[] | undefined>
-  >({});
-  const [values, setValues] = useState<ValueMap>(loadControlValues);
+  //
+  // CONTROLS
+  //
 
-  // Save to SessionStorage, with debounce to prevent excessive writes
-  useDebouncedEffect(() => saveControlValues(values), 200, [values]);
-
-  // Displayed Controls are the ones for which we have Watchers
+  // Displayed Controls are the ones for which their Subject have at least one Observers
   // ControlValue is preserved in case it is unmounted and remounted
   const currentControls = useMemo(
     () =>
-      Object.entries(watchers)
-        .filter(([, list]) => list?.length)
+      Object.entries(subjects)
+        .filter(([, subject]) => subject.observers.length > 0)
         .map(([id]) => controls[id]),
-    [watchers, controls]
+    [subjects, controls]
   );
 
   const resetControlsValues = useProxyCallback(() => {
     // For all current controls, reset their values to their default value
-    setValues(
-      Object.fromEntries(
-        currentControls.map((control) => [
-          control.id,
-          getControlDefaultValue(control),
-        ])
-      )
-    );
-
-    // Call all watchers with default value
     currentControls.forEach((control) => {
       const defaultValue = getControlDefaultValue(control);
-      watchers[control.id]?.forEach((watcher) => watcher(defaultValue));
+      subjects[control.id].next(defaultValue);
     });
   });
 
-  const registerControl = useProxyCallback(
-    (control: Control, watcher: ControlWatcher) => {
-      const defaultValue = getControlDefaultValue(control);
+  const registerControl = useProxyCallback<
+    KontrolContextType["registerControl"]
+  >((control: Control) => {
+    const defaultValue = getControlDefaultValue(control);
 
-      setControls((current) => ({
+    setControls((current) => ({
+      ...current,
+      [control.id]: control,
+    }));
+
+    // Create Subject if it does not exist
+    const subject = subjects[control.id] ?? new BehaviorSubject(defaultValue);
+
+    // Save Subject if was not present
+    if (!(control.id in subjects)) {
+      setSubjects((current) => ({
         ...current,
-        [control.id]: control,
+        [control.id]: subject,
       }));
-      setWatchers((current) => ({
-        ...current,
-        [control.id]: [...(current[control.id] ?? []), watcher],
-      }));
-
-      // Set initial value if no existing value
-      if (!(control.id in values)) {
-        setValues((current) => ({ ...current, [control.id]: defaultValue }));
-      }
-
-      // Call watcher with initial value
-      const initialValue =
-        control.id in values ? values[control.id] : defaultValue;
-      watcher(initialValue);
-
-      return {
-        value: initialValue,
-        // When unregistering a Control Instance, only remove Control and Watcher
-        // Preserve its Value in case of later remount.
-        unregister: () => {
-          // When unregistering a Control Instance, only remove Watcher
-          // If a new Watcher is registered, it will preserve order
-          setWatchers((current) => ({
-            ...current,
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            [control.id]: current[control.id]!.filter((w) => w !== watcher),
-          }));
-        },
-      };
     }
-  );
 
-  const updateControlValue = useProxyCallback(
-    (control: Control, value: ControlValueType) => {
-      setValues({ ...values, [control.id]: value });
-      watchers[control.id]?.forEach((watcher) => watcher(value));
-    }
-  );
+    // TODO: Fix type
+    return subject as any;
+  });
 
-  const pluginApi: KontrolPluginAPI = {
+  const pluginApi: KontrolPluginAPI = useObjectShallowMemo({
     commands,
     controls: currentControls,
-    controlsValues: values,
+    controlsSubjects: subjects,
     resetControlsValues,
-    updateControlValue,
-  };
+  });
 
   return (
     <KontrolContext.Provider

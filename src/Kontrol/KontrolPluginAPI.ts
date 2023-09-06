@@ -1,6 +1,7 @@
 import React from "react";
 
-import type { Control, ControlValueType } from "./context";
+import type { Control, ControlValueType } from "./inference";
+import type { BehaviorSubject } from "rxjs";
 
 export type Command = {
   id: string;
@@ -12,9 +13,9 @@ export type Command = {
 
 export type KontrolPluginAPI = {
   commands: Command[];
+  // TODO: Controls could have directly Subject embedded in them.
   controls: Control[];
-  controlsValues: Record<string, ControlValueType>;
-  updateControlValue: (control: Control, value: ControlValueType) => void;
+  controlsSubjects: Record<string, BehaviorSubject<ControlValueType>>;
   resetControlsValues: () => void;
 };
 

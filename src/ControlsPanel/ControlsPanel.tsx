@@ -18,8 +18,7 @@ import type { KontrolPlugin } from "../Kontrol/KontrolPluginAPI";
 
 export const ControlsPanel: KontrolPlugin = ({
   controls,
-  controlsValues,
-  updateControlValue,
+  controlsSubjects,
   resetControlsValues,
 }) => {
   const [showPanel, setShowPanel] = useState(false);
@@ -76,8 +75,7 @@ export const ControlsPanel: KontrolPlugin = ({
               {controls.length > 0 ? (
                 <ControlsGroup
                   controls={controls}
-                  controlsValues={controlsValues}
-                  updateControl={updateControlValue}
+                  controlsSubjects={controlsSubjects}
                 />
               ) : (
                 <div className={styles.NoControls}>No Controls</div>

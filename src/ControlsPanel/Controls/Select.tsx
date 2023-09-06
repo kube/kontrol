@@ -9,12 +9,12 @@ import type {
   Control,
   ControlType,
   ReturnTypeFromType,
-} from "../../Kontrol/context";
+} from "../../Kontrol/inference";
 
 type ControlProps<T extends ControlType> = {
   control: Control<T>;
   value: ReturnTypeFromType<T>;
-  update: (control: Control<T>, value: ReturnTypeFromType<T>) => void;
+  update: (value: ReturnTypeFromType<T>) => void;
 };
 
 export const Select: React.FC<ControlProps<"Select">> = ({
@@ -49,7 +49,7 @@ export const Select: React.FC<ControlProps<"Select">> = ({
         },
       }}
       value={value}
-      onChange={(_, newValue) => update(control, newValue as string)}
+      onChange={(_, newValue) => update(newValue as string)}
     >
       {keys.map((key) => (
         <Option

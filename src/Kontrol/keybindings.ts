@@ -33,8 +33,6 @@ export function useKeybindings(commands: Command[]) {
       // TODO: Handle sequences
       if (isControlKeyPressed && event.shiftKey) {
         event.preventDefault();
-        console.log("HELLO");
-        console.log(`Ctrl+Shift+${event.key}`);
 
         runCommandsForKeyboardShortcut(`Ctrl+Shift+${event.key}`);
       }

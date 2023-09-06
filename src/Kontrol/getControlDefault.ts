@@ -1,31 +1,29 @@
-import type { ControlType, OptionsFromType } from "./inference";
+import type {
+  ControlType,
+  OptionsFromType,
+  ReturnTypeFromOptions,
+} from "./inference";
 
-export function getControlDefaultValue(control: OptionsFromType<ControlType>) {
-  console.log("getControlDefaultValue", control);
+export function getControlDefaultValue<C extends OptionsFromType<ControlType>>(
+  control: C
+): ReturnTypeFromOptions<C> {
   if ("default" in control && control.default !== undefined) {
-    if (control.type === "Select") {
-      console.log("Using default value for select", control.default);
-    }
-    return control.default;
+    return control.default as ReturnTypeFromOptions<C>;
   }
   if (control.type === "Select") {
-    console.log(
-      "Using first value for select",
-      Object.values(control.options)[0]
-    );
-    return Object.values(control.options)[0];
+    return Object.values(control.options)[0] as ReturnTypeFromOptions<C>;
   }
   if (control.type === "Number") {
     if (control.min !== undefined) {
-      return control.min;
+      return control.min as ReturnTypeFromOptions<C>;
     }
-    return 0;
+    return 0 as ReturnTypeFromOptions<C>;
   }
   if (control.type === "Toggle") {
-    return false;
+    return false as ReturnTypeFromOptions<C>;
   }
   if (control.type === "Color") {
-    return "#FF0000";
+    return "#FF0000" as ReturnTypeFromOptions<C>;
   }
   throw new Error(`Unknown Control Type`);
 }

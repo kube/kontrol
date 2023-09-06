@@ -3,14 +3,10 @@ import { m } from "framer-motion";
 
 import * as styles from "./ControlsGroup.css";
 import * as Controls from "./Controls";
-import type {
-  Control,
-  ControlType,
-  ControlValueType,
-  ReturnTypeFromType,
-} from "../Kontrol/context";
+import type { Control, ControlValueType } from "../Kontrol/inference";
 import { MdExpandMore } from "react-icons/md";
 import { AnimatePresence } from "framer-motion";
+import { BehaviorSubject } from "rxjs";
 
 function notNil<T>(x: T | undefined | null): x is T {
   return x !== undefined && x !== null;
@@ -20,19 +16,14 @@ type ControlsGroupProps = {
   depth?: number;
   title?: string;
   controls: Control[];
-  controlsValues: Record<string, ControlValueType>;
-  updateControl: <T extends ControlType>(
-    control: Control<T>,
-    value: ReturnTypeFromType<T>
-  ) => void;
+  controlsSubjects: Record<string, BehaviorSubject<ControlValueType>>;
 };
 
 export const ControlsGroup: React.FC<ControlsGroupProps> = ({
   depth = 0,
   title,
   controls,
-  controlsValues,
-  updateControl,
+  controlsSubjects,
 }) => {
   const [isFirstRender, setFirstRender] = useState(true);
   useEffect(() => setFirstRender(false), []);
@@ -97,8 +88,11 @@ export const ControlsGroup: React.FC<ControlsGroupProps> = ({
                       <Control
                         key={control.id}
                         control={control}
-                        value={controlsValues[control.id] as boolean}
-                        update={updateControl}
+                        subject={
+                          controlsSubjects[
+                            control.id
+                          ] as BehaviorSubject<boolean>
+                        }
                       />
                     );
                   }
@@ -108,23 +102,25 @@ export const ControlsGroup: React.FC<ControlsGroupProps> = ({
                       <Control
                         key={control.id}
                         control={control}
-                        value={controlsValues[control.id] as number}
-                        update={updateControl}
+                        subject={
+                          controlsSubjects[
+                            control.id
+                          ] as BehaviorSubject<number>
+                        }
                       />
                     );
                   }
                   if (control.type === "Select") {
                     const Control = Controls[control.type];
-                    console.log("HERE");
-                    console.log(control.id);
-                    console.log(controlsValues);
-                    console.log(controlsValues[control.id] as string);
                     return (
                       <Control
                         key={control.id}
                         control={control}
-                        value={controlsValues[control.id] as string | number}
-                        update={updateControl}
+                        subject={
+                          controlsSubjects[control.id] as BehaviorSubject<
+                            string | number
+                          >
+                        }
                       />
                     );
                   }
@@ -134,8 +130,9 @@ export const ControlsGroup: React.FC<ControlsGroupProps> = ({
                     <Control
                       key={control.id}
                       control={control}
-                      value={controlsValues[control.id] as string}
-                      update={updateControl}
+                      subject={
+                        controlsSubjects[control.id] as BehaviorSubject<string>
+                      }
                     />
                   );
                 })
@@ -152,8 +149,7 @@ export const ControlsGroup: React.FC<ControlsGroupProps> = ({
                   controls={controls.filter(
                     (control) => control.group?.[depth] === groupName
                   )}
-                  controlsValues={controlsValues}
-                  updateControl={updateControl}
+                  controlsSubjects={controlsSubjects}
                 />
               ))
             }

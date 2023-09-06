@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { BehaviorSubject } from "rxjs";
 
 import * as styles from "./Controls.css";
 import { Slider } from "./Controls/Slider";
@@ -6,22 +7,33 @@ import type {
   Control,
   ControlType,
   ReturnTypeFromType,
-} from "../Kontrol/context";
+} from "../Kontrol/inference";
 import { ColorPicker } from "./Controls/ColorPicker";
 import { Select as BaseSelect } from "./Controls/Select";
 import { Toggle as BaseToggle } from "./Controls/Toggle";
 
 type ControlProps<T extends ControlType> = {
   control: Control<T>;
-  value: ReturnTypeFromType<T>;
-  update: (control: Control<T>, value: ReturnTypeFromType<T>) => void;
+  subject: BehaviorSubject<ReturnTypeFromType<T>>;
 };
+
+function useSubject<T>(subject: BehaviorSubject<T>) {
+  const [value, setValue] = useState<T>(subject.value);
+
+  useEffect(() => {
+    const sub = subject.subscribe(setValue);
+    return () => sub.unsubscribe();
+  }, [subject]);
+
+  return [value, subject.next.bind(subject)] as const;
+}
 
 export const Toggle: React.FC<ControlProps<"Toggle">> = ({
   control,
-  value,
-  update,
+  subject,
 }) => {
+  const [value, update] = useSubject(subject);
+
   return (
     <div className={styles.ControlLine}>
       <label className={styles.ControlLabel} htmlFor={`input-${control.label}`}>
@@ -31,7 +43,7 @@ export const Toggle: React.FC<ControlProps<"Toggle">> = ({
       <BaseToggle
         id={`input-${control.label}`}
         checked={value}
-        onChange={(e) => update(control, e.target.checked)}
+        onChange={(e) => update(e.target.checked)}
       />
     </div>
   );
@@ -39,9 +51,10 @@ export const Toggle: React.FC<ControlProps<"Toggle">> = ({
 
 export const Number: React.FC<ControlProps<"Number">> = ({
   control,
-  value,
-  update,
+  subject,
 }) => {
+  const [value, update] = useSubject(subject);
+
   return (
     <div className={styles.ControlLine}>
       <label className={styles.ControlLabel} htmlFor={`input-${control.label}`}>
@@ -55,10 +68,10 @@ export const Number: React.FC<ControlProps<"Number">> = ({
         max={control.max}
         step={control.step}
         value={value}
-        onChange={(e) => {
-          e.stopPropagation();
-          e.preventDefault();
-          update(control, parseInt(e.target.value));
+        onChange={(_, newValue) => {
+          // e.stopPropagation();
+          // e.preventDefault();
+          update(newValue as number);
         }}
       />
     </div>
@@ -67,9 +80,10 @@ export const Number: React.FC<ControlProps<"Number">> = ({
 
 export const Select: React.FC<ControlProps<"Select">> = ({
   control,
-  value,
-  update,
+  subject,
 }) => {
+  const [value, update] = useSubject(subject);
+
   return (
     <div className={styles.ControlLine}>
       <label className={styles.ControlLabel} htmlFor={`input-${control.label}`}>
@@ -83,9 +97,10 @@ export const Select: React.FC<ControlProps<"Select">> = ({
 
 export const Color: React.FC<ControlProps<"Color">> = ({
   control,
-  value,
-  update,
+  subject,
 }) => {
+  const [value, update] = useSubject(subject);
+
   return (
     <div className={styles.ControlLine}>
       <label className={styles.ControlLabel} htmlFor={`input-${control.label}`}>
@@ -95,7 +110,7 @@ export const Color: React.FC<ControlProps<"Color">> = ({
       <ColorPicker
         id={`input-${control.label}`}
         value={value}
-        onChange={(e) => update(control, e.target.value)}
+        onChange={(e) => update(e.target.value)}
       />
     </div>
   );
