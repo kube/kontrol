@@ -1,11 +1,12 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
+import cslx from "clsx";
 
 import type { Command, KontrolPluginAPI } from "../Kontrol/KontrolPluginAPI";
 import { useDebugCommand } from "../Kontrol/hooks";
 
-import styles from "./CommandPalette.module.scss";
+import * as styles from "./CommandPalette.css";
 
 function toSlug(str: string) {
   return str.replace(/\s/g, "").toLowerCase();
@@ -95,49 +96,47 @@ export const CommandPaletteUI: React.FC<{
   });
 
   return createPortal(
-    <motion.div className={styles.commandPalettePortal}>
-      <motion.div className={styles.commandPaletteWrapper} onClick={close}>
-        <motion.div
-          initial={{ opacity: 0, y: 22 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 22 }}
-          className={styles.commandPalette}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <input
-            className={styles.commandPaletteInput}
-            ref={inputRef}
-            value={search}
-            onChange={(event) => setSearch(event.currentTarget.value)}
-          />
-          <ul ref={listRef}>
-            {filteredCommands.map((command, index) => (
-              <li
-                key={command.id}
-                role="menuitem"
-                tabIndex={index}
-                className={
-                  selectedIndex === index ? styles.selected : undefined
-                }
-                onFocus={() => setSelectedIndex(index)}
-                onClick={() => callCommand(index)}
-              >
-                <motion.div className={styles.groupName}>
-                  {command.group}
+    <motion.div className={styles.CommandPaletteContainer} onClick={close}>
+      <motion.div
+        initial={{ opacity: 0, y: 22 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 22 }}
+        className={styles.CommandPalette}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <input
+          className={styles.Input}
+          ref={inputRef}
+          value={search}
+          onChange={(event) => setSearch(event.currentTarget.value)}
+        />
+        <ul ref={listRef} className={styles.CommandsList}>
+          {filteredCommands.map((command, index) => (
+            <li
+              key={command.id}
+              role="menuitem"
+              tabIndex={index}
+              className={cslx(styles.CommandsListItem, {
+                [styles.Selected]: selectedIndex === index,
+              })}
+              onFocus={() => setSelectedIndex(index)}
+              onClick={() => callCommand(index)}
+            >
+              <motion.div className={styles.GroupName}>
+                {command.group}
+              </motion.div>
+              <motion.div className={styles.CommandLabel}>
+                {command.label}
+              </motion.div>
+              {command.keyboardShortcut && (
+                <motion.div className={styles.CommandShortcut}>
+                  <kbd>⌘</kbd>+<kbd>K</kbd>+
+                  <kbd>{command.keyboardShortcut.toUpperCase()}</kbd>
                 </motion.div>
-                <motion.div className={styles.commandLabel}>
-                  {command.label}
-                </motion.div>
-                {command.keyboardShortcut && (
-                  <motion.div className={styles.commandShortcut}>
-                    <kbd>⌘</kbd>+<kbd>K</kbd>+
-                    <kbd>{command.keyboardShortcut.toUpperCase()}</kbd>
-                  </motion.div>
-                )}
-              </li>
-            ))}
-          </ul>
-        </motion.div>
+              )}
+            </li>
+          ))}
+        </ul>
       </motion.div>
     </motion.div>,
     document.body

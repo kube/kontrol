@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { m } from "framer-motion";
 
-import styles from "./ControlsGroup.module.scss";
+import * as styles from "./ControlsGroup.css";
 import * as Controls from "./Controls";
 import type {
   Control,
@@ -58,17 +58,19 @@ export const ControlsGroup: React.FC<ControlsGroupProps> = ({
       {
         // Display Group Title with Expand/Collapse Button
         title ? (
-          <div className={styles.ControlGroupTitle} onClick={toggleExpanded}>
-            <MdExpandMore
-              style={{
-                fontSize: 16,
-                transition: "transform 0.1s ease",
-                transform: `translateY(3px) rotate(${
-                  isExpanded ? 0 : -90
-                }deg) `,
-              }}
-            />
-            {title}
+          <div className={styles.ControlGroupTitle}>
+            <span onClick={toggleExpanded}>
+              <MdExpandMore
+                style={{
+                  fontSize: 16,
+                  transition: "transform 0.1s ease",
+                  transform: `translateY(3px) rotate(${
+                    isExpanded ? 0 : -90
+                  }deg) `,
+                }}
+              />
+              {title}
+            </span>
           </div>
         ) : null
       }

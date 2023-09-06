@@ -9,7 +9,7 @@ import {
 } from "framer-motion";
 
 import { ControlsGroup } from "./ControlsGroup";
-import styles from "./ControlsPanel.module.scss";
+import * as styles from "./ControlsPanel.css";
 import { useDebugCommand } from "../Kontrol/hooks";
 
 import { MdClose, MdBackspace } from "react-icons/md";
@@ -58,10 +58,16 @@ export const ControlsPanel: KontrolPlugin = ({
               >
                 Controls
                 <div className={styles.PanelTitleButtons}>
-                  <button onClick={resetControlsValues}>
+                  <button
+                    className={styles.PanelTitleButton}
+                    onClick={resetControlsValues}
+                  >
                     <MdBackspace />
                   </button>
-                  <button onClick={() => setShowPanel(false)}>
+                  <button
+                    className={styles.PanelTitleButton}
+                    onClick={() => setShowPanel(false)}
+                  >
                     <MdClose />
                   </button>
                 </div>
