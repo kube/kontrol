@@ -124,6 +124,20 @@ export const ControlsGroup: React.FC<ControlsGroupProps> = ({
                       />
                     );
                   }
+                  if (control.type === "Text") {
+                    const Control = Controls[control.type];
+                    return (
+                      <Control
+                        key={control.id}
+                        control={control}
+                        subject={
+                          controlsSubjects[
+                            control.id
+                          ] as BehaviorSubject<string>
+                        }
+                      />
+                    );
+                  }
                   // last alternative: control.type === 'Color'
                   const Control = Controls[control.type];
                   return (

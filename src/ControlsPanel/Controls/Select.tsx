@@ -48,6 +48,7 @@ export const Select: React.FC<ControlProps<"Select">> = ({
           className: styles.CustomSelectPopper,
         },
       }}
+      // @ts-expect-error TODO: Fix types here
       value={value}
       onChange={(_, newValue) => update(newValue as string)}
     >

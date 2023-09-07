@@ -9,10 +9,7 @@ export const Toggle: typeof BaseSwitch = ({ ...props }) => {
     root: { className: styles.CustomSwitchIntroduction },
     thumb: { className: styles.CustomSwitchIntroductionThumb },
     track: { className: styles.CustomSwitchIntroductionTrack },
-    input: {
-      label: props.label,
-      className: styles.CustomSwitchIntroductionInput,
-    },
+    input: { className: styles.CustomSwitchIntroductionInput },
   };
 
   return <BaseSwitch slotProps={slotProps} {...props} />;

@@ -7,6 +7,8 @@ type BaseOptions<T extends ControlType, V> = {
   default?: V;
 };
 
+type TextInput = BaseOptions<"Text", string>;
+
 type SelectInput<
   O extends Record<string, unknown> = Record<string, string | number>
 > = BaseOptions<"Select", O[keyof O]> & {
@@ -25,7 +27,9 @@ type ColorInput = BaseOptions<"Color", string>;
 
 ///
 
-export type OptionsFromType<T extends ControlType> = T extends "Select"
+export type OptionsFromType<T extends ControlType> = T extends "Text"
+  ? TextInput
+  : T extends "Select"
   ? SelectInput
   : T extends "Number"
   ? NumberInput
@@ -38,6 +42,8 @@ export type OptionsFromType<T extends ControlType> = T extends "Select"
 export type ReturnTypeFromOptions<O extends OptionsFromType<ControlType>> =
   O extends SelectInput<infer R>
     ? R[keyof R]
+    : O extends TextInput
+    ? string
     : O extends NumberInput
     ? number
     : O extends ToggleInput

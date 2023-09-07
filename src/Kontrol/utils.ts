@@ -44,8 +44,11 @@ export function useProxyCallback<Fn extends (...args: never[]) => unknown>(
   fn: Fn
 ): Fn;
 
-export function useProxyCallback(fn: Function) {
+export function useProxyCallback<
+  A extends unknown[],
+  Fn extends (...args: A) => unknown
+>(fn: Fn) {
   const callbackRef = useRef<typeof fn>(fn);
   callbackRef.current = fn;
-  return useCallback((...args) => callbackRef.current(...args), []);
+  return useCallback((...args: A) => callbackRef.current(...args), []);
 }

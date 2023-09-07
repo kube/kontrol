@@ -95,6 +95,24 @@ export const Select: React.FC<ControlProps<"Select">> = ({
   );
 };
 
+export const Text: React.FC<ControlProps<"Text">> = ({ control, subject }) => {
+  const [value, update] = useSubject(subject);
+
+  return (
+    <div className={styles.ControlLine}>
+      <label className={styles.ControlLabel} htmlFor={`input-${control.label}`}>
+        {control.label}
+      </label>
+
+      <input
+        id={`input-${control.label}`}
+        value={value}
+        onChange={(e) => update(e.target.value)}
+      />
+    </div>
+  );
+};
+
 export const Color: React.FC<ControlProps<"Color">> = ({
   control,
   subject,
@@ -110,7 +128,7 @@ export const Color: React.FC<ControlProps<"Color">> = ({
       <ColorPicker
         id={`input-${control.label}`}
         value={value}
-        onChange={(e) => update(e.target.value)}
+        onChange={(e) => update(e.currentTarget.value)}
       />
     </div>
   );
