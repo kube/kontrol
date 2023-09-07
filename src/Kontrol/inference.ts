@@ -1,4 +1,4 @@
-export type ControlType = "Select" | "Number" | "Toggle" | "Color";
+export type ControlType = "Text" | "Select" | "Number" | "Toggle" | "Color";
 
 type BaseOptions<T extends ControlType, V> = {
   type: T;
