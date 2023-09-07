@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import cslx from "clsx";
 
 import type { Command, KontrolPluginAPI } from "../Kontrol/KontrolPluginAPI";
